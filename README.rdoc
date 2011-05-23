@@ -4,24 +4,25 @@ Forked from http://andreaslagerkvist.com/jquery/live-search/
 
 = Example Code
 
-```html
-<div id="jquery-live-search-example">
-<form method="post" action="/search/">
+HTML
 
-    <p>
-        <label>
-            Enter search terms<br />
-            <input type="text" name="q" />
-        </label> <input type="submit" value="Go" />
-    </p>
+  <div id="jquery-live-search-example">
+  <form method="post" action="/search/">
+  
+      <p>
+          <label>
+              Enter search terms<br />
+              <input type="text" name="q" />
+          </label> <input type="submit" value="Go" />
+      </p>
+  
+  </form>
+  </div>
 
-</form>
-</div>
-```
+JS
+  
+  jQuery('#jquery-live-search-example input[name="q"]').liveSearch({url: Router.urlForModule('SearchResults') + '&q='});
 
-```javascript
-jQuery('#jquery-live-search-example input[name="q"]').liveSearch({url: Router.urlForModule('SearchResults') + '&q='});
-```
 = License
 http://creativecommons.org/licenses/by/3.0/
 
