@@ -52,7 +52,9 @@ jQuery.fn.liveSearch = function (conf) {
 		typeDelay:		200,
 		loadingClass:	'loading', 
 		onSlideUp:		function () {}, 
-		uptadePosition:	false
+		uptadePosition:	false,
+		minLength:		0,
+		width:			null
 	}, conf);
 
 	var liveSearch	= jQuery('#' + config.id);
@@ -83,10 +85,14 @@ jQuery.fn.liveSearch = function (conf) {
 		// Re calculates live search's position
 		var repositionLiveSearch = function () {
 			var tmpOffset	= input.offset();
+			var tmpWidth = input.outerWidth();
+			if (config.width != null) {
+				tmpWidth = config.width;
+			}
 			var inputDim	= {
 				left:		tmpOffset.left, 
 				top:		tmpOffset.top, 
-				width:		input.outerWidth(), 
+				width:		tmpWidth, 
 				height:		input.outerHeight()
 			};
 
@@ -135,7 +141,9 @@ jQuery.fn.liveSearch = function (conf) {
 					// If there are search results show live search
 					else {
 						// HACK: In case search field changes width onfocus
-						setTimeout(showLiveSearch, 1);
+						if (this.value.length > config.minLength) {
+							setTimeout(showLiveSearch, 1);
+						}
 					}
 				}
 			})
@@ -152,21 +160,23 @@ jQuery.fn.liveSearch = function (conf) {
 						clearTimeout(this.timer);
 					}
 
-					// Start a new ajax-request in X ms
-					this.timer = setTimeout(function () {
-						jQuery.get(config.url + q, function (data) {
-							input.removeClass(config.loadingClass);
+					if( q.length > config.minLength ) {
+						// Start a new ajax-request in X ms
+						this.timer = setTimeout(function () {
+							jQuery.get(config.url + q, function (data) {
+								input.removeClass(config.loadingClass);
 
-							// Show live-search if results and search-term aren't empty
-							if (data.length && q.length) {
-								liveSearch.html(data);
-								showLiveSearch();
-							}
-							else {
-								hideLiveSearch();
-							}
-						});
-					}, config.typeDelay);
+								// Show live-search if results and search-term aren't empty
+								if (data.length && q.length) {
+									liveSearch.html(data);
+									showLiveSearch();
+								}
+								else {
+									hideLiveSearch();
+								}
+							});
+						}, config.typeDelay);
+					}
 
 					this.lastValue = this.value;
 				}
