@@ -46,7 +46,7 @@ jQuery('#jquery-live-search-example input[name="q"]').liveSearch({url: Router.ur
 ***/
 jQuery.fn.liveSearch = function (conf) {
 	var config = jQuery.extend({
-		url:			'/search-results.php?q=', 
+		urls:			{'search-result': 'search-results.php?q='},
 		id:				'jquery-live-search', 
 		duration:		400, 
 		typeDelay:		200,
@@ -57,6 +57,7 @@ jQuery.fn.liveSearch = function (conf) {
 		width:			null
 	}, conf);
 
+	var searchStatus = {};
 	var liveSearch	= jQuery('#' + config.id);
 
 	// Create live-search if it doesn't exist
@@ -65,6 +66,11 @@ jQuery.fn.liveSearch = function (conf) {
 						.appendTo(document.body)
 						.hide()
 						.slideUp(0);
+
+		for (key in config.urls) {
+			liveSearch.append('<div id="' + key + '"></div>');
+			searchStatus[key] = false;
+		}
 
 		// Close live-search when clicking outside it
 		jQuery(document.body).click(function(event) {
@@ -118,14 +124,40 @@ jQuery.fn.liveSearch = function (conf) {
 			$(window).unbind('resize', repositionLiveSearch);
 			$(window).bind('resize', repositionLiveSearch);
 
-			liveSearch.slideDown(config.duration);
+			for (key in config.urls) {
+				if( searchStatus[key] == true ) {
+					liveSearch.slideDown(config.duration)
+					break;
+				}
+			}
 		};
 
 		// Hides live-search for this input
 		var hideLiveSearch = function () {
-			liveSearch.slideUp(config.duration, function () {
-				config.onSlideUp();
-			});
+			hideStatus = true;
+			for (key in config.urls) {
+				if( searchStatus[key] == true ) {
+					hideStatus = false;
+					break;
+				}
+			}
+			if (hideStatus == true) {
+				liveSearch.slideUp(config.duration, function () {
+					config.onSlideUp();
+					for (key in config.urls) {
+						if( searchStatus[key] == false ) {
+							liveSearch.find('#' + key).html('');
+						}
+					}
+
+				});
+			} else {
+				for (key in config.urls) {
+					if( searchStatus[key] == false ) {
+						liveSearch.find('#' + key).html('');
+					}
+				}
+			}
 		};
 
 		input
@@ -163,21 +195,31 @@ jQuery.fn.liveSearch = function (conf) {
 					if( q.length > config.minLength ) {
 						// Start a new ajax-request in X ms
 						this.timer = setTimeout(function () {
-							jQuery.get(config.url + q, function (data) {
-								input.removeClass(config.loadingClass);
-
-								// Show live-search if results and search-term aren't empty
-								if (data.length && q.length) {
-									liveSearch.html(data);
-									showLiveSearch();
-								}
-								else {
-									hideLiveSearch();
-								}
-							});
+							for (url_key in config.urls) {
+								jQuery.ajax({
+									async: false,
+									url: config.urls[url_key] + q,
+									success: function(data){
+										if (data.length) {
+    										searchStatus[url_key] = true;
+											liveSearch.find('#' + url_key).html(data);
+											setTimeout(showLiveSearch, 1);
+										} else {
+											searchStatus[url_key] = false;
+											hideLiveSearch();
+										}
+									}
+								});
+							}
 						}, config.typeDelay);
 					}
-
+					else {
+						for (url_key in config.urls) {
+							searchStatus[url_key] = false;
+						}
+						hideLiveSearch();
+					}
+					
 					this.lastValue = this.value;
 				}
 			});
