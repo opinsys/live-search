@@ -1,0 +1,32 @@
+= Live Search
+
+Forked from http://andreaslagerkvist.com/jquery/live-search/
+
+= Example Code
+
+```html
+<div id="jquery-live-search-example">
+<form method="post" action="/search/">
+
+    <p>
+        <label>
+            Enter search terms<br />
+            <input type="text" name="q" />
+        </label> <input type="submit" value="Go" />
+    </p>
+
+</form>
+</div>
+```
+
+```javascript
+jQuery('#jquery-live-search-example input[name="q"]').liveSearch({url: Router.urlForModule('SearchResults') + '&q='});
+```
+= License
+http://creativecommons.org/licenses/by/3.0/
+
+= Copyright
+2008 Andreas Lagerkvist (andreaslagerkvist.com)
+
+= Rrequires
+jquery, jquery.liveSearch.css
