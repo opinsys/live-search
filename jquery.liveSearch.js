@@ -113,6 +113,22 @@ jQuery.fn.liveSearch = function (conf) {
 			});
 		};
 
+		var showOrHideLiveSearch = function () {
+			showStatus = false;
+			for (key in config.urls) {
+				if( searchStatus[key] == true ) {
+					showStatus = true;
+					break;
+				}
+			}
+
+			if (showStatus == true) {
+				showLiveSearch();
+			} else {
+				hideLiveSearch();
+			}
+		};
+
 		// Shows live-search for this input
 		var showLiveSearch = function () {
 			// Always reposition the live-search every time it is shown
@@ -124,59 +140,25 @@ jQuery.fn.liveSearch = function (conf) {
 			$(window).unbind('resize', repositionLiveSearch);
 			$(window).bind('resize', repositionLiveSearch);
 
-			for (key in config.urls) {
-				if( searchStatus[key] == true ) {
-					liveSearch.slideDown(config.duration)
-					break;
-				}
-			}
+			liveSearch.slideDown(config.duration)
 		};
 
 		// Hides live-search for this input
 		var hideLiveSearch = function () {
-			hideStatus = true;
-			for (key in config.urls) {
-				if( searchStatus[key] == true ) {
-					hideStatus = false;
-					break;
-				}
-			}
-			if (hideStatus == true) {
-				liveSearch.slideUp(config.duration, function () {
-					config.onSlideUp();
-					for (key in config.urls) {
-						if( searchStatus[key] == false ) {
-							liveSearch.find('#' + key).html('');
-						}
-					}
-
-				});
-			} else {
+			liveSearch.slideUp(config.duration, function () {
+				config.onSlideUp();
 				for (key in config.urls) {
-					if( searchStatus[key] == false ) {
-						liveSearch.find('#' + key).html('');
-					}
+					liveSearch.find('#' + key).html('');
 				}
-			}
+			});
 		};
 
 		input
 			// On focus, if the live-search is empty, perform an new search
 			// If not, just slide it down. Only do this if there's something in the input
 			.focus(function () {
-				if (this.value !== '') {
-					// Perform a new search if there are no search results
-					if (liveSearch.html() == '') {
-						this.lastValue = '';
-						input.keyup();
-					}
-					// If there are search results show live search
-					else {
-						// HACK: In case search field changes width onfocus
-						if (this.value.length > config.minLength) {
-							setTimeout(showLiveSearch, 1);
-						}
-					}
+				if (this.value.length > config.minLength ) {
+					showOrHideLiveSearch();
 				}
 			})
 			// Auto update live-search onkeyup
@@ -203,14 +185,15 @@ jQuery.fn.liveSearch = function (conf) {
 										if (data.length) {
     										searchStatus[url_key] = true;
 											liveSearch.find('#' + url_key).html(data);
-											setTimeout(showLiveSearch, 1);
 										} else {
 											searchStatus[url_key] = false;
-											hideLiveSearch();
 										}
 									}
 								});
 							}
+
+							showOrHideLiveSearch();
+
 						}, config.typeDelay);
 					}
 					else {
@@ -219,7 +202,7 @@ jQuery.fn.liveSearch = function (conf) {
 						}
 						hideLiveSearch();
 					}
-					
+
 					this.lastValue = this.value;
 				}
 			});
