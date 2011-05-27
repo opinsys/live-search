@@ -1,8 +1,8 @@
-= Live Search
+== Live Search
 
 Forked from http://andreaslagerkvist.com/jquery/live-search/
 
-= Example Code
+== Example Code
 
 HTML
 
@@ -23,11 +23,24 @@ JS
   
   jQuery('#jquery-live-search-example input[name="q"]').liveSearch({url: Router.urlForModule('SearchResults') + '&q='});
 
-= License
-http://creativecommons.org/licenses/by/3.0/
+== Changes
 
-= Copyright
+New configuration options
+
+* minLength: minimum number of characters
+* width: the number of pixels in the div-element of results. Can also be set to 'auto'.
+
+Support for multiple search urls
+
+  $('#search).liveSearch({
+    url: ["one-search?q=", "two-search?q="]
+  })
+
+== License
+http://creativecommons.org/licenses/by/3.0
+
+== Copyright
 2008 Andreas Lagerkvist (andreaslagerkvist.com)
 
-= Rrequires
+== Requires
 jquery, jquery.liveSearch.css
